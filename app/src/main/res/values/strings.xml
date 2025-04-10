@@ -1,0 +1,93 @@
+<resources>
+
+    <string name="action_view">View</string>
+    <string name="action_show">Show</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_share">Share</string>
+    <string name="action_export">Export</string>
+    <string name="export_to_jpg">Export to JPG</string>
+    <string name="export_to_pdf">Export to PDF</string>
+    <string name="export_to_myshopping">Export to MyShopping</string>
+
+    <string name="total_format">Total: %1$.2f %2$s</string>
+
+    <string name="action_themes">Themes</string>
+    <string name="action_my_lists">My Lists</string>
+    <string name="action_share_receipt">Share Receipt</string>
+    <string name="action_currency">Currency Settings</string>
+    <string name="action_rate">Rate App</string>
+    <string name="action_share_app">Share App</string>
+    <string name="action_remove_ads">Remove Ads</string>
+    <string name="action_about">About App</string>
+    <string name="action_import">Import</string>
+
+    <string name="app_name">MyShopping</string>
+    <string name="menu">Menu</string>
+    <string name="list_label">Список: %s</string>
+    <string name="date_label">Дата: %s</string>
+    <string name="list_details_title">Детали списка</string>
+    <string name="copy_suffix">(копия)</string>
+    <string name="edit_list_title">Редактировать список %s</string>
+    <string name="delete_item_title">Удалить товар</string>
+    <string name="delete_item_message">Удалить товар %s?</string>
+    <string name="list_updated">List updated</string>
+    <string name="list_name_empty">List name cannot be empty</string>
+    <string name="edit_item_title">Edit Item</string>
+    <string name="name_hint">Name</string>
+    <string name="quantity_hint">Quantity</string>
+    <string name="price_hint">Price</string>
+    <string name="category_hint">Category (optional)</string>
+    <string name="select_color">Select Color</string>
+    <string name="invalid_input">Invalid input</string>
+    <string name="add_item_title">Add Item</string>
+    <string name="save">Save</string>
+    <string name="add">Add</string>
+    <string name="share_list_title">Share List</string>
+    <string name="export_as_title">Экспортировать как</string>
+    <string name="exported_to">Exported to %s</string>
+    <string name="export_failed">Export failed: %s</string>
+    <string name="list_exceeds_100_items">List exceeds 100 items, only first 100 will be exported</string>
+    <string name="total">Total: %.2f</string>
+    <string name="clear">Clear</string>
+    <string name="red">Red</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
+    <string name="palette">Palette</string>
+    <string name="category_items_title">Товары в категории %s</string>
+    <string name="my_lists">Мои списки</string>
+    <string name="no_lists_found">Списков покупок не найдено</string>
+    <string name="category_header" formatted="false">%s (%d)</string>
+    <string name="list_created">Список создан</string>
+    <string name="list_deleted">Список удален</string>
+    <string name="edit_list_name">Изменить название списка</string>
+    <string name="cancel">Отмена</string>
+    <string name="enter_list_name">Введите название списка</string>
+    <string name="delete_confirmation">Вы уверены, что хотите удалить этот список?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="total_label">Итого: %.2f</string>
+    <string name="edit_list">Редактировать</string>
+
+    <!-- Категории -->
+    <string name="select_category">Выберите категорию</string>
+    <string name="category_icon">Иконка категории</string>
+    <string name="manage_categories">Управление</string>
+    <string name="add_category">Добавить категорию</string>
+    <string name="edit_category">Изменить категорию</string>
+    <string name="delete_category">Удалить категорию</string>
+    <string name="category_name">Название категории</string>
+    <string name="category_color">Цвет категории</string>
+    <string name="category_management">Управление категориями</string>
+    <string name="no_categories">Нет категорий</string>
+    <string name="category_added">Категория добавлена</string>
+    <string name="category_updated">Категория обновлена</string>
+    <string name="category_deleted">Категория удалена</string>
+    <string name="category_error">Ошибка при работе с категорией</string>
+    <string name="category_name_empty">Название категории не может быть пустым</string>
+    <string name="category_button_hint">Категория (опционально)</string>
+    <string name="no_category">Без категории</string>
+    <string name="filter_by_category">Фильтр по категории</string>
+    <string name="all_categories">Все категории</string>
+</resources>

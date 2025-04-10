@@ -1,0 +1,68 @@
+<resources>
+    <!-- Переопределяем базовую тему для ночного режима -->
+    <style name="AppTheme" parent="AppTheme_Dark">
+        <!-- Настройки для контекстного меню -->
+        <item name="android:itemTextAppearance">@style/TextAppearance.Dark.Menu</item>
+        <item name="popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="android:listViewStyle">@style/ListView.Dark</item>
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.Dark.Menu</item>
+        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.Dark.Menu</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/TextAppearance.Dark.Menu</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/TextAppearance.Dark.Menu</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogTheme_Dark</item>
+        
+        <!-- Атрибуты для меню в ночном режиме -->
+        <item name="menu_item_textColor">@color/dark_menu_item_text</item>
+        <item name="popup_menu_background">@color/dark_popup_background</item>
+        <item name="popup_menu_divider">@color/dark_popup_divider</item>
+    </style>
+
+    <!-- Переопределяем атрибуты для ночного режима -->
+    <item type="color" name="dialog_textColor">@color/dark_secondary</item>
+    <item type="style" name="dialog_textAppearance">@style/TextAppearance.App.DialogList</item>
+    <item type="color" name="dialog_background">@color/dark_surface</item>
+    <item type="color" name="background_nightTheme">@color/dark_background</item>
+    <item type="color" name="primary_nightTheme">@color/dark_primary</item>
+    <item type="color" name="accent_nightTheme">@color/dark_secondary</item>
+
+    <!-- Переопределяем только те стили, которые отличаются в ночном режиме -->
+    <style name="Widget.App.DialogButton" parent="Widget.App.DialogButton.Dark" />
+    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="Widget.App.EditText" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:textColor">@color/dark_secondary</item>
+    </style>
+    <style name="Widget.App.TextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="Widget.App.PopupMenu" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    
+    <!-- Стили для всплывающего меню в темной теме -->
+    <style name="PopupMenu.Dark" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@color/dark_popup_background</item>
+        <item name="android:divider">@color/dark_popup_divider</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+    
+    <!-- Стиль для текста в меню темной темы -->
+    <style name="TextAppearance.Dark.Menu" parent="TextAppearance.AppCompat.Menu">
+        <item name="android:textColor">@color/dark_menu_item_text</item>
+    </style>
+    
+    <!-- Стиль для темного списка -->
+    <style name="ListView.Dark" parent="@android:style/Widget.ListView">
+        <item name="android:background">@color/dark_popup_background</item>
+        <item name="android:textColor">@color/dark_menu_item_text</item>
+        <item name="android:divider">@color/dark_popup_divider</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+    
+    <!-- Стиль для текста в списках диалогов -->
+    <style name="TextAppearance.App.DialogList" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/dark_menu_item_text</item>
+    </style>
+</resources>

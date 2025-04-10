@@ -1,0 +1,206 @@
+<resources>
+    <!-- Базовая тема Green -->
+    <style name="AppTheme_Green" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorPrimaryVariant">@color/green_primary_variant</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/green_secondary</item>
+        <item name="android:statusBarColor">@color/green_primary_variant</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="alertDialogTheme">@style/AlertDialogTheme_Base</item>
+        <!-- Пользовательские атрибуты -->
+        <item name="toolbar_textColor">@color/green_toolbar_text</item>
+        <item name="editText_textColor">#000000</item>
+        <item name="button_textColor">@color/white</item>
+        <item name="button_background">@color/green_secondary</item>
+        <item name="dialog_textColor">@color/green_primary</item>
+        <item name="dialog_textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="dialog_background">@color/white</item>
+        <item name="background_nightTheme">@color/white</item>
+        <item name="text_primary_color">#000000</item>
+
+        <item name="primary_nightTheme">@color/green_primary</item>
+        <item name="accent_nightTheme">@color/green_secondary</item>
+
+        <item name="foneBackground">#A9EB71</item>
+
+        <!-- Атрибуты для меню -->
+        <item name="menu_item_textColor">@color/green_menu_item_text</item>
+        <item name="popup_menu_background">@color/green_popup_background</item>
+        <item name="popup_menu_divider">@color/green_popup_divider</item>
+
+        <!-- Новый атрибут для фона Toolbar -->
+        <item name="toolbarBackground">@color/green_toolbar_background</item>
+        <!-- Тема для всплывающего меню в ToolBar -->
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Dark</item>
+        <!-- Стиль для Toolbar -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+    </style>
+
+    <!-- Тема Orange -->
+    <style name="AppTheme_Orange" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/orange_primary</item>
+        <item name="colorPrimaryVariant">@color/orange_primary_variant</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/orange_secondary</item>
+        <item name="android:statusBarColor">@color/orange_primary_variant</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="alertDialogTheme">@style/AlertDialogTheme_Orange</item>
+        <!-- Пользовательские атрибуты -->
+        <item name="toolbar_textColor">@color/orange_toolbar_text</item>
+        <item name="editText_textColor">#000000</item>
+        <item name="button_textColor">@color/white</item>
+        <item name="button_background">@color/orange_secondary</item>
+        <item name="dialog_textColor">@color/orange_primary</item>
+        <item name="dialog_textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="dialog_background">@color/white</item>
+        <item name="background_nightTheme">@color/white</item>
+        <item name="primary_nightTheme">@color/orange_primary</item>
+        <item name="accent_nightTheme">@color/orange_secondary</item>
+        <item name="text_primary_color">#000000</item>
+
+        <item name="foneBackground">@color/orange_fone_background</item>
+
+        <!-- Атрибуты для меню -->
+        <item name="menu_item_textColor">@color/orange_menu_item_text</item>
+        <item name="popup_menu_background">@color/orange_popup_background</item>
+        <item name="popup_menu_divider">@color/orange_popup_divider</item>
+
+        <!-- Фон Toolbar для оранжевой темы -->
+        <item name="toolbarBackground">@color/orange_toolbar_background</item>
+        <!-- Тема для всплывающего меню в ToolBar -->
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Dark</item>
+        <!-- Стиль для Toolbar -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+    </style>
+
+    <!-- Тема Dark -->
+    <style name="AppTheme_Dark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/dark_primary</item>
+        <item name="colorPrimaryVariant">@color/dark_primary_variant</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/dark_secondary</item>
+        <item name="android:statusBarColor">@color/dark_primary_variant</item>
+        <item name="android:windowBackground">@color/dark_background</item>
+        <item name="alertDialogTheme">@style/AlertDialogTheme_Dark</item>
+        <!-- Пользовательские атрибуты -->
+        <item name="toolbar_textColor">@color/dark_toolbar_text</item>
+        <item name="editText_textColor">#000000</item>
+        <item name="button_textColor">@color/white</item>
+        <item name="button_background">@color/dark_primary</item>
+
+        <item name="dialog_textColor">@color/dark_secondary</item>
+        <item name="dialog_textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+        <item name="dialog_background">@color/dark_surface</item>
+
+        <item name="background_nightTheme">@color/dark_background</item>
+        <item name="primary_nightTheme">@color/dark_primary</item>
+        <item name="accent_nightTheme">@color/dark_secondary</item>
+        <item name="text_primary_color">#FFFFFF</item>
+        <item name="foneBackground">@color/dark_fone_background</item>
+        
+        <!-- Атрибуты для меню -->
+        <item name="menu_item_textColor">@color/dark_menu_item_text</item>
+        <item name="popup_menu_background">@color/dark_popup_background</item>
+        <item name="popup_menu_divider">@color/dark_popup_divider</item>
+        
+        <!-- Фон Toolbar для тёмной темы -->
+        <item name="toolbarBackground">@color/dark_toolbar_background</item>
+        
+        <!-- Цвет текста контекстного меню -->
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:itemTextAppearance">@style/TextAppearance.Dark.Menu</item>
+        
+        <!-- Стили для всплывающего меню -->
+        <item name="popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="android:listViewStyle">@style/ListView.Dark</item>
+        <item name="textAppearanceLargePopupMenu">@style/TextAppearance.Dark.Menu</item>
+        <item name="textAppearanceSmallPopupMenu">@style/TextAppearance.Dark.Menu</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/TextAppearance.Dark.Menu</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/TextAppearance.Dark.Menu</item>
+        
+        <!-- Тема для всплывающего меню в ToolBar -->
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Dark</item>
+        <!-- Стиль для Toolbar -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
+    </style>
+
+    <!-- Стили для диалогов -->
+    <style name="AlertDialogTheme_Base" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/green_primary</item>
+        <item name="colorAccent">@color/green_secondary</item>
+        <item name="android:background">?attr/dialog_background</item>
+        <item name="android:textColor">?attr/dialog_textColor</item>
+        <item name="android:textAppearance">?attr/dialog_textAppearance</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.DialogButton</item>
+    </style>
+
+    <style name="AlertDialogTheme_Orange" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/orange_primary</item>
+        <item name="colorAccent">@color/orange_secondary</item>
+        <item name="android:background">?attr/dialog_background</item>
+        <item name="android:textColor">?attr/dialog_textColor</item>
+        <item name="android:textAppearance">?attr/dialog_textAppearance</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.DialogButton</item>
+    </style>
+
+    <style name="AlertDialogTheme_Dark" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="colorPrimary">@color/dark_primary</item>
+        <item name="colorAccent">@color/dark_secondary</item>
+        <item name="android:background">?attr/dialog_background</item>
+        <item name="android:textColor">?attr/dialog_textColor</item>
+        <item name="android:textAppearance">?attr/dialog_textAppearance</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.DialogButton.Dark</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.DialogButton.Dark</item>
+    </style>
+
+    <!-- Стили для кнопок диалогов -->
+    <style name="Widget.App.DialogButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/green_secondary</item>
+    </style>
+
+    <style name="Widget.App.DialogButton.Dark" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/dark_secondary</item>
+    </style>
+
+    <!-- Стили для виджетов -->
+    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">?attr/toolbarBackground</item>
+        <item name="titleTextColor">?attr/toolbar_textColor</item>
+        <item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+    </style>
+
+    <style name="Widget.App.EditText" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:textColor">?attr/editText_textColor</item>
+    </style>
+
+    <style name="Widget.App.TextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!-- Стиль для текста в списках диалогов -->
+    <style name="TextAppearance.App.DialogList" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">?attr/dialog_textColor</item>
+    </style>
+
+    <!-- Стиль для текста в меню темной темы -->
+    <style name="TextAppearance.Dark.Menu" parent="TextAppearance.AppCompat.Menu">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <!-- Стиль для всплывающего меню в темной теме -->
+    <style name="PopupMenu.Dark" parent="Widget.MaterialComponents.PopupMenu">
+        <item name="android:popupBackground">@color/dark_background</item>
+    </style>
+
+    <!-- Стиль для темного списка -->
+    <style name="ListView.Dark" parent="@android:style/Widget.ListView">
+        <item name="android:background">@color/dark_background</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:divider">@android:color/darker_gray</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+</resources>

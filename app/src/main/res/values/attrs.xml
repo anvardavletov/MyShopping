@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Цвета текста -->
+    <attr name="toolbar_textColor" format="color" />
+    <attr name="editText_textColor" format="color" />
+    <attr name="button_textColor" format="color" />
+    <attr name="button_background" format="color" />
+    <attr name="text_primary_color" format="color" />
+
+
+    <attr name="foneBackground" format="color" />
+
+    <attr name="toolbarBackground" format="color" />
+
+    <!-- Атрибуты для диалогов -->
+    <attr name="dialog_textColor" format="color" />
+    <attr name="dialog_textAppearance" format="reference" />
+    <attr name="dialog_background" format="color" />
+    
+    <!-- Атрибуты для меню -->
+    <attr name="menu_item_textColor" format="color" />
+    <attr name="popup_menu_background" format="color" />
+    <attr name="popup_menu_divider" format="color" />
+
+    <!-- Дополнительные атрибуты для ночного режима (если нужно) -->
+    <attr name="background_nightTheme" format="color" />
+    <attr name="primary_nightTheme" format="color" />
+    <attr name="accent_nightTheme" format="color" />
+</resources>

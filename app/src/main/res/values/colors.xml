@@ -1,0 +1,66 @@
+<resources>
+    <color name="button_red">#D32F2F</color>
+    <color name="button_green">#689F38</color>
+    <color name="button_blue">#0288D1</color>
+
+
+    <!-- Green Theme -->
+    <color name="green_primary">#4CAF50</color>
+    <color name="green_primary_variant">#388E3C</color>
+    <color name="green_secondary">#81C784</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <color name="green_fone_background">#1976D2</color>
+
+    <!-- Новый цвет для фона Toolbar в зелёной теме -->
+    <color name="green_toolbar_background">@color/green_primary</color>
+    <color name="green_toolbar_text">@color/white</color>
+    
+    <!-- Цвета меню для зеленой темы -->
+    <color name="green_menu_item_text">@color/black</color>
+    <color name="green_popup_background">#FFFFFF</color>
+    <color name="green_popup_divider">#DDDDDD</color>
+
+
+    <!-- Orange Theme -->
+    <color name="orange_primary">#FF5722</color>
+    <color name="orange_primary_variant">#E64A19</color>
+    <color name="orange_secondary">@color/orange_primary</color>
+
+    <color name="orange_fone_background">#FFA000</color>
+
+    <!-- Новый цвет для фона Toolbar в оранжевой теме -->
+    <color name="orange_toolbar_background">@color/orange_primary</color>
+    <color name="orange_toolbar_text">@color/white</color>
+    
+    <!-- Цвета меню для оранжевой темы -->
+    <color name="orange_menu_item_text">@color/black</color>
+    <color name="orange_popup_background">#FFFFFF</color>
+    <color name="orange_popup_divider">#DDDDDD</color>
+
+    <!-- Dark Theme -->
+    <color name="dark_primary">#020202</color>
+    <color name="dark_primary_variant">#0277BD</color>
+    <color name="dark_secondary">#4FC3F7</color>
+    <color name="dark_background">#212121</color>
+    <color name="dark_surface">#303030</color>
+
+    <color name="dark_fone_background">#6A6969</color>
+
+    <!-- Новый цвет для фона Toolbar в темной теме -->
+    <color name="dark_toolbar_background">@color/dark_primary</color>
+    <color name="dark_toolbar_text">@color/white</color>
+    
+    <!-- Цвета меню для темной темы -->
+    <color name="dark_menu_item_text">@color/white</color>
+    <color name="dark_popup_background">@color/dark_background</color>
+    <color name="dark_popup_divider">#444444</color>
+
+    <color name="dialog_textColor">#FFFFFF</color> <!-- Пример белого текста -->
+    <color name="dialog_background">#222222</color> <!-- Пример тёмного фона -->
+    <color name="background_nightTheme">#4B4848</color> <!-- Пример тёмного фона -->
+    <color name="primary_nightTheme">#222222</color> <!-- Пример тёмного фона -->
+    <color name="accent_nightTheme">#222222</color> <!-- Пример тёмного фона -->
+
+</resources>
