@@ -1,7 +1,6 @@
 package tm.davletov.myshopping;
 
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,10 +10,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,13 +48,14 @@ import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.material.appbar.MaterialToolbar;
 import android.util.TypedValue;
 
-public class MainActivity extends AppCompatActivity implements PurchasesUpdatedListener {
+public class MainActivity extends AppCompatActivity implements PurchasesUpdatedListener, CurrencyManager.CurrencyLoadListener {
     private List<ShoppingItem> currentList = new ArrayList<>();
     private ShoppingListAdapter adapter;
     private DatabaseHelper db;
@@ -68,14 +68,13 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
     private BillingClient billingClient;
     private ProductDetails removeAdsProductDetails;
 
-    private static final int THEME_BASE = 0;  // Зеленая (базовая)
+    private static final int THEME_BASE = 0;
     private static final int THEME_ORANGE = 1;
     private static final int THEME_DARK = 2;
 
     private SharedPreferences prefs;
-
-    // Добавляем константу для имени файла списка
     private static final String CURRENT_LIST_PREFS = "current_shopping_list";
+    private double cachedTotal = 0;
 
     private final ActivityResultLauncher<String[]> permissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -117,12 +116,8 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Инициализируем SharedPreferences
-        prefs = getSharedPreferences("app_prefs", MODE_PRIVATE); // Используем "app_prefs"
-
-        // Применяем тему до setContentView
+        prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         int theme = prefs.getInt("theme", THEME_BASE);
-        // Отладка: выводим текущую тему в лог
         Log.d("MainActivity", "Current theme onCreate: " + theme);
 
         switch (theme) {
@@ -164,20 +159,24 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         AdView adView = findViewById(R.id.ad_view);
 
         db = new DatabaseHelper(this);
-        currencyManager = new CurrencyManager(this);
-        adsRemoved = prefs.getBoolean("ads_removed", false);
-
+        currencyManager = new CurrencyManager(this, this);
         currencySymbol = currencyManager.getCurrency();
+        adsRemoved = prefs.getBoolean("ads_removed", false);
 
         etQuantity.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         etPrice.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
-        // Сначала проверяем savedInstanceState (на случай поворота экрана)
         if (savedInstanceState != null) {
             currentList = savedInstanceState.getParcelableArrayList("current_list");
         } else {
-            // Если savedInstanceState нет, пытаемся загрузить из SharedPreferences
-            loadListFromPrefs();
+            currentList = new ArrayList<>();
+            new Thread(() -> {
+                loadListFromPrefs();
+                runOnUiThread(() -> {
+                    adapter.notifyDataSetChanged();
+                    updateTotal();
+                });
+            }).start();
         }
 
         adapter = new ShoppingListAdapter(currentList, this::updateTotal, this::editItem);
@@ -200,13 +199,31 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         }).attachToRecyclerView(rvItems);
 
         if (!adsRemoved && adView != null) {
-            MobileAds.initialize(this, initializationStatus -> {});
-            RequestConfiguration configuration = new RequestConfiguration.Builder()
-                    .setTestDeviceIds(Collections.singletonList("0CADD9D9C802D9C0C89C79A6436A454D"))
-                    .build();
-            MobileAds.setRequestConfiguration(configuration);
-            AdRequest adRequest = new AdRequest.Builder().build();
-            adView.loadAd(adRequest);
+            new Thread(() -> {
+                MobileAds.initialize(this, initializationStatus -> {
+                    runOnUiThread(() -> {
+                        RequestConfiguration configuration = new RequestConfiguration.Builder()
+                                .setTestDeviceIds(Collections.singletonList("0CADD9D9C802D9C0C89C79A6436A454D"))
+                                .build();
+                        MobileAds.setRequestConfiguration(configuration);
+
+                        // Адаптивный баннер
+                        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+                        float adWidthPx = adView.getWidth();
+                        if (adWidthPx == 0) {
+                            adWidthPx = displayMetrics.widthPixels;
+                        }
+                        float density = displayMetrics.density;
+                        int adWidth = (int) (adWidthPx / density);
+                        AdSize adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth);
+                        adView.setAdSize(adSize);
+
+                        AdRequest adRequest = new AdRequest.Builder().build();
+                        adView.loadAd(adRequest);
+                        adView.setVisibility(View.VISIBLE);
+                    });
+                });
+            }).start();
         } else if (adView != null) {
             adView.setVisibility(View.GONE);
         }
@@ -263,7 +280,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                 getString(R.string.action_themes),
                 getString(R.string.action_my_lists),
                 getString(R.string.action_share_receipt),
-                getString(R.string.action_currency),
                 getString(R.string.action_rate),
                 getString(R.string.action_share_app),
                 getString(R.string.action_remove_ads),
@@ -278,40 +294,34 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                         case 0: showThemeDialog(); break;
                         case 1: startActivity(new Intent(this, MyListsActivity.class)); break;
                         case 2: shareReceipt(); break;
-                        case 3: currencyManager.showCurrencyDialog(this::updateTotal); break;
-                        case 4: rateApp(); break;
-                        case 5: shareApp(); break;
-                        case 6: removeAds(); break;
-                        case 7: showAboutDialog(); break;
-                        case 8: checkStoragePermissions(); break;
+                        case 3: rateApp(); break;
+                        case 4: shareApp(); break;
+                        case 5: removeAds(); break;
+                        case 6: showAboutDialog(); break;
+                        case 7: checkStoragePermissions(); break;
                     }
                 })
                 .create();
-        
-        // Получаем цвет текста из атрибутов темы
+
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(R.attr.menu_item_textColor, typedValue, true);
         int textColor = typedValue.data;
-        
-        // Настраиваем цвет текста для списка перед показом диалога
+
         ListView listView = dialog.getListView();
         if (listView != null) {
             listView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
                 @Override
                 public void onChildViewAdded(View parent, View child) {
                     if (child instanceof TextView) {
-                        // Используем цвет из атрибутов темы
                         ((TextView) child).setTextColor(textColor);
                     }
                 }
 
                 @Override
-                public void onChildViewRemoved(View parent, View child) {
-                    // Ничего не делаем
-                }
+                public void onChildViewRemoved(View parent, View child) {}
             });
         }
-        
+
         dialog.show();
     }
 
@@ -325,33 +335,19 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                 )
                 .build();
 
-        billingClient.startConnection(new BillingClientStateListener() {
-            @Override
-            public void onBillingSetupFinished(BillingResult billingResult) {
-                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                    queryProductDetails();
+        new Thread(() -> {
+            billingClient.startConnection(new BillingClientStateListener() {
+                @Override
+                public void onBillingSetupFinished(BillingResult billingResult) {
+                    if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                        queryProductDetails();
+                    }
                 }
-            }
 
-            @Override
-            public void onBillingServiceDisconnected() {
-                billingClient.startConnection(new BillingClientStateListener() {
-                    @Override
-                    public void onBillingSetupFinished(BillingResult billingResult) {
-                        if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                            queryProductDetails();
-                        } else {
-                            Toast.makeText(MainActivity.this, "Failed to reconnect to billing service", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onBillingServiceDisconnected() {
-                        // Повторные попытки можно ограничить
-                    }
-                });
-            }
-        });
+                @Override
+                public void onBillingServiceDisconnected() {}
+            });
+        }).start();
     }
 
     private void queryProductDetails() {
@@ -372,8 +368,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                         removeAdsProductDetails = productDetails;
                     }
                 }
-            } else {
-                Toast.makeText(this, "Failed to load product details: " + billingResult.getDebugMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -390,10 +384,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                     }
                 }
             }
-        } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
-            Toast.makeText(this, "Purchase canceled", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Purchase error: " + billingResult.getDebugMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -405,8 +395,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         billingClient.acknowledgePurchase(acknowledgeParams, billingResult -> {
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                 handlePurchaseConfirmed();
-            } else {
-                Toast.makeText(this, "Failed to acknowledge purchase", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -432,16 +420,14 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         }
 
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-        // Устанавливаем формат с двумя знаками после запятой
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
-        
+
         double quantity;
         if (quantityStr.isEmpty()) {
             quantity = 0;
         } else {
             try {
-                // Заменяем запятую на точку для правильного парсинга
                 String normalizedStr = quantityStr.replace(',', '.');
                 quantity = Double.parseDouble(normalizedStr);
                 if (quantity < 0) {
@@ -459,7 +445,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
             price = 0;
         } else {
             try {
-                // Заменяем запятую на точку для правильного парсинга
                 String normalizedStr = priceStr.replace(',', '.');
                 price = Double.parseDouble(normalizedStr);
                 if (price < 0) {
@@ -472,6 +457,10 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
             }
         }
 
+        if (isCategoryNameAndColorConflict(selectedCategory, selectedColor, null)) {
+            Toast.makeText(this, "Категория с таким именем уже существует с другим цветом!", Toast.LENGTH_LONG).show();
+            return;
+        }
         ShoppingItem item = new ShoppingItem(name, quantity, price, selectedCategory, false);
         item.setColor(selectedColor);
         currentList.add(item);
@@ -492,7 +481,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         EditText etEditQuantity = new EditText(this);
         EditText etEditPrice = new EditText(this);
         etEditName.setText(item.getName());
-        // Форматируем количество и цену с учётом локали
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
@@ -520,7 +508,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                         quantity = 0;
                     } else {
                         try {
-                            // Заменяем запятую на точку для правильного парсинга
                             String normalizedStr = quantityStr.replace(',', '.');
                             quantity = Double.parseDouble(normalizedStr);
                             if (quantity < 0) {
@@ -538,7 +525,6 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                         price = 0;
                     } else {
                         try {
-                            // Заменяем запятую на точку для правильного парсинга
                             String normalizedStr = priceStr.replace(',', '.');
                             price = Double.parseDouble(normalizedStr);
                             if (price < 0) {
@@ -630,9 +616,8 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
     }
 
     private void selectCategory(String defaultColor) {
-        // Проверяем, есть ли уже категория с таким цветом
         for (ShoppingItem item : currentList) {
-            if (defaultColor != null && defaultColor.equals(item.getColor()) && item.getCategory() != null 
+            if (defaultColor != null && defaultColor.equals(item.getColor()) && item.getCategory() != null
                     && !item.getCategory().equals("-1") && !item.getCategory().isEmpty()) {
                 selectedCategory = item.getCategory();
                 selectedColor = defaultColor;
@@ -640,8 +625,7 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                 return;
             }
         }
-        
-        // Если нет категории с таким цветом, запрашиваем имя
+
         EditText input = new EditText(this);
         AlertDialog.Builder builder = createThemedDialogBuilder();
         builder.setTitle("Назовите категорию")
@@ -672,13 +656,44 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                 .show();
     }
 
+    @Override
+    public void onCurrencyReady(String newSymbol) {
+        runOnUiThread(() -> {
+            currencySymbol = newSymbol;
+            updateTotal();
+        });
+    }
+
+    @Override
+    public void onCurrencyLoadFailed() {
+        runOnUiThread(() -> {
+            currencySymbol = "$";
+            updateTotal();
+        });
+    }
+
+    private boolean isCategoryNameAndColorConflict(String nameToCheck, String colorToCheck, ShoppingItem itemBeingEdited) {
+        if (nameToCheck == null || nameToCheck.trim().isEmpty() || colorToCheck == null) {
+            return false;
+        }
+        for (ShoppingItem existingItem : currentList) {
+            if (itemBeingEdited != null && existingItem == itemBeingEdited) continue;
+            if (existingItem.getCategory() != null && nameToCheck.trim().equalsIgnoreCase(existingItem.getCategory().trim())) {
+                if (!colorToCheck.equals(existingItem.getColor())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void updateTotal() {
-        double total = 0;
+        cachedTotal = 0;
         for (ShoppingItem item : currentList) {
-            total += item.getTotal();
+            cachedTotal += item.getTotal();
         }
         TextView tvTotal = findViewById(R.id.all_total);
-        tvTotal.setText(getString(R.string.total_format, total, currencySymbol));
+        tvTotal.setText(getString(R.string.total_format, cachedTotal, currencySymbol));
     }
 
     private void clearInputs(EditText etName, EditText etQuantity, EditText etPrice) {
@@ -710,12 +725,9 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         AlertDialog.Builder builder = createThemedDialogBuilder();
         AlertDialog dialog = builder.setTitle("Select Theme")
                 .setItems(themes, (dlg, which) -> {
-                    // Сохраняем новую тему как int
                     prefs.edit().putInt("theme", which).apply();
-                    // Отладка: выводим новую тему в лог
                     Log.d("MainActivity", "New theme saved: " + which);
 
-                    // Перезапускаем приложение, чтобы применить тему
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -723,31 +735,26 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                 })
                 .setNegativeButton("Cancel", null)
                 .create();
-                
-        // Получаем цвет текста из атрибутов темы
+
         TypedValue typedValue = new TypedValue();
         getTheme().resolveAttribute(R.attr.menu_item_textColor, typedValue, true);
         int textColor = typedValue.data;
-        
-        // Настраиваем цвет текста для списка перед показом диалога
+
         ListView listView = dialog.getListView();
         if (listView != null) {
             listView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
                 @Override
                 public void onChildViewAdded(View parent, View child) {
                     if (child instanceof TextView) {
-                        // Используем цвет из атрибутов темы
                         ((TextView) child).setTextColor(textColor);
                     }
                 }
 
                 @Override
-                public void onChildViewRemoved(View parent, View child) {
-                    // Ничего не делаем
-                }
+                public void onChildViewRemoved(View parent, View child) {}
             });
         }
-        
+
         dialog.show();
     }
 
@@ -765,11 +772,7 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
     }
 
     private double getTotal() {
-        double total = 0;
-        for (ShoppingItem item : currentList) {
-            total += item.getTotal();
-        }
-        return total;
+        return cachedTotal;
     }
 
     private void shareApp() {
@@ -850,14 +853,12 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
     @Override
     protected void onPause() {
         super.onPause();
-        // Сохраняем текущий список при приостановке активности
         saveListToPrefs();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // При необходимости можно обновить UI здесь
         updateTotal();
     }
 
@@ -869,19 +870,15 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
         super.onDestroy();
     }
 
-    // Метод для сохранения списка в SharedPreferences
     private void saveListToPrefs() {
         try {
             SharedPreferences.Editor editor = prefs.edit();
-            
-            // Сохраняем количество элементов
             editor.putInt(CURRENT_LIST_PREFS + "_size", currentList.size());
-            
-            // Сохраняем каждый элемент
+
             for (int i = 0; i < currentList.size(); i++) {
                 ShoppingItem item = currentList.get(i);
                 String prefix = CURRENT_LIST_PREFS + "_item_" + i;
-                
+
                 editor.putString(prefix + "_name", item.getName());
                 editor.putFloat(prefix + "_quantity", (float) item.getQuantity());
                 editor.putFloat(prefix + "_price", (float) item.getPrice());
@@ -889,48 +886,40 @@ public class MainActivity extends AppCompatActivity implements PurchasesUpdatedL
                 editor.putBoolean(prefix + "_checked", item.isChecked());
                 editor.putString(prefix + "_color", item.getColor() != null ? item.getColor() : "");
             }
-            
-            // Сохраняем валюту
+
             editor.putString(CURRENT_LIST_PREFS + "_currency", currencySymbol);
-            
             editor.apply();
             Log.d("MainActivity", "Список сохранен, элементов: " + currentList.size());
         } catch (Exception e) {
             Log.e("MainActivity", "Ошибка при сохранении списка: " + e.getMessage());
         }
     }
-    
-    // Метод для загрузки списка из SharedPreferences
+
     private void loadListFromPrefs() {
         try {
-            // Получаем количество элементов
             int size = prefs.getInt(CURRENT_LIST_PREFS + "_size", 0);
-            
-            // Если список не пустой, загружаем элементы
             if (size > 0) {
                 currentList.clear();
-                
+
                 for (int i = 0; i < size; i++) {
                     String prefix = CURRENT_LIST_PREFS + "_item_" + i;
-                    
+
                     String name = prefs.getString(prefix + "_name", "");
                     double quantity = prefs.getFloat(prefix + "_quantity", 0);
                     double price = prefs.getFloat(prefix + "_price", 0);
                     String category = prefs.getString(prefix + "_category", null);
                     boolean checked = prefs.getBoolean(prefix + "_checked", false);
                     String color = prefs.getString(prefix + "_color", "");
-                    
+
                     ShoppingItem item = new ShoppingItem(name, quantity, price, category, checked);
                     if (!color.isEmpty()) {
                         item.setColor(color);
                     }
-                    
+
                     currentList.add(item);
                 }
-                
-                // Загружаем валюту
+
                 currencySymbol = prefs.getString(CURRENT_LIST_PREFS + "_currency", "$");
-                
                 Log.d("MainActivity", "Список загружен, элементов: " + currentList.size());
             }
         } catch (Exception e) {

@@ -1,18 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../services/shopping_list_service.dart';
 import '../widgets/shopping_item_widget.dart';
 import '../widgets/add_item_dialog.dart';
 import 'my_lists_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return ShowcaseWidget(
+      builder: Builder(
+        builder: (context) => _HomeScreenContent(),
+      ),
+    );
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenContent extends StatefulWidget {
+  const _HomeScreenContent({Key? key}) : super(key: key);
+
+  @override
+  State<_HomeScreenContent> createState() => _HomeScreenContentState();
+}
+
+class _HomeScreenContentState extends State<_HomeScreenContent> {
+  // Showcase keys
+  final GlobalKey _titleKey = GlobalKey();
+  final GlobalKey _myListsKey = GlobalKey();
+  final GlobalKey _saveKey = GlobalKey();
+  final GlobalKey _clearKey = GlobalKey();
+  final GlobalKey _fabKey = GlobalKey();
+  final GlobalKey _listKey = GlobalKey();
+
+  // Showcase keys for AddItemDialog fields
+  final GlobalKey _nameFieldKey = GlobalKey();
+  final GlobalKey _quantityFieldKey = GlobalKey();
+  final GlobalKey _priceFieldKey = GlobalKey();
+  final GlobalKey _categoryFieldKey = GlobalKey();
+
+  bool _showcaseStarted = false;
+  bool _addDialogShowcaseStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_showcaseStarted) {
+        setState(() {
+          _showcaseStarted = true;
+        });
+        ShowCaseWidget.of(context).startShowCase([
+          _titleKey,
+          _myListsKey,
+          _saveKey,
+          _clearKey,
+          _listKey,
+          _fabKey,
+        ]).then((_) {
+          // После завершения showcase основных элементов — показать showcase для AddItemDialog
+          _showAddItemDialog(context, Provider.of<ShoppingListService>(context, listen: false), showcase: true);
+        });
+      }
+    });
+  }
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _quantityController = TextEditingController();
@@ -124,13 +177,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Диалог для добавления нового элемента
-  void _showAddItemDialog(BuildContext context, ShoppingListService service) {
+  void _showAddItemDialog(BuildContext context, ShoppingListService service, {bool showcase = false}) {
     showDialog(
       context: context,
       builder: (context) => AddItemDialog(
         onAddItem: (item) {
           service.addItem(item);
         },
+        nameKey: _nameFieldKey,
+        quantityKey: _quantityFieldKey,
+        priceKey: _priceFieldKey,
+        categoryKey: _categoryFieldKey,
+        startShowcase: showcase,
       ),
     );
   }
@@ -145,28 +203,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: GestureDetector(
-              onTap: () => _showRenameListDialog(context, shoppingService),
-              child: Text(shoppingService.currentListName),
+            title: Showcase(
+              key: _titleKey,
+              description: 'Название списка. Нажмите, чтобы переименовать.',
+              child: GestureDetector(
+                onTap: () => _showRenameListDialog(context, shoppingService),
+                child: Text(shoppingService.currentListName),
+              ),
             ),
             actions: [
               // Загрузить сохраненные списки
-              IconButton(
-                icon: const Icon(Icons.folder_open),
-                onPressed: () => _showSavedLists(context),
-                tooltip: 'Мои списки',
+              Showcase(
+                key: _myListsKey,
+                description: 'Здесь можно загрузить сохранённые списки.',
+                child: IconButton(
+                  icon: const Icon(Icons.folder_open),
+                  onPressed: () => _showSavedLists(context),
+                  tooltip: 'Мои списки',
+                ),
               ),
               // Сохранить текущий список
-              IconButton(
-                icon: const Icon(Icons.save),
-                onPressed: () => _saveList(context, shoppingService),
-                tooltip: 'Сохранить список',
+              Showcase(
+                key: _saveKey,
+                description: 'Сохранить текущий список покупок.',
+                child: IconButton(
+                  icon: const Icon(Icons.save),
+                  onPressed: () => _saveList(context, shoppingService),
+                  tooltip: 'Сохранить список',
+                ),
               ),
               // Очистить список
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: () => _clearList(context, shoppingService),
-                tooltip: 'Очистить список',
+              Showcase(
+                key: _clearKey,
+                description: 'Очистить текущий список.',
+                child: IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () => _clearList(context, shoppingService),
+                  tooltip: 'Очистить список',
+                ),
               ),
               // Дополнительное меню
               PopupMenuButton(
@@ -226,23 +300,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     // Список элементов
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: currentList.length,
-                        itemBuilder: (context, index) {
-                          final item = currentList[index];
-                          return ShoppingItemWidget(
-                            item: item,
-                            onToggle: (checked) {
-                              shoppingService.toggleItemChecked(index, checked);
-                            },
-                            onEdit: () {
-                              // TODO: Реализовать редактирование элемента
-                            },
-                            onDelete: () {
-                              shoppingService.removeItem(index);
-                            },
-                          );
-                        },
+                      child: Showcase(
+                        key: _listKey,
+                        description: 'Список ваших покупок. Здесь отображаются все добавленные позиции.',
+                        child: ListView.builder(
+                          itemCount: currentList.length,
+                          itemBuilder: (context, index) {
+                            final item = currentList[index];
+                            return ShoppingItemWidget(
+                              item: item,
+                              onToggle: (checked) {
+                                shoppingService.toggleItemChecked(index, checked);
+                              },
+                              onEdit: () {
+                                // TODO: Реализовать редактирование элемента
+                              },
+                              onDelete: () {
+                                shoppingService.removeItem(index);
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ),
                     // Итоговая сумма
@@ -267,12 +345,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => _showAddItemDialog(context, shoppingService),
-            child: const Icon(Icons.add),
+          floatingActionButton: Showcase(
+            key: _fabKey,
+            description: 'Добавить новый товар в список.',
+            child: FloatingActionButton(
+              onPressed: () => _showAddItemDialog(context, shoppingService),
+              child: const Icon(Icons.add),
+            ),
           ),
         );
       },
     );
   }
-} 
+}

@@ -62,31 +62,38 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
             holder.tvTotal.setTextColor(Color.BLACK);
             // Зачеркиваем текст
             holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.tvQuantity.setPaintFlags(holder.tvQuantity.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.tvPrice.setPaintFlags(holder.tvPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.tvTotal.setPaintFlags(holder.tvTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             // Снимаем зачеркивание
             holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.tvQuantity.setPaintFlags(holder.tvQuantity.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.tvPrice.setPaintFlags(holder.tvPrice.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.tvTotal.setPaintFlags(holder.tvTotal.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
             // Если товар не куплен, используем цвет категории (если есть)
             String color = item.getColor();
             if (color != null) {
                 try {
                     holder.itemView.setBackgroundColor(Color.parseColor(color));
-                    // Устанавливаем белый цвет текста для закрашенных строк
-                    holder.tvName.setTextColor(Color.BLACK);
-                    holder.tvQuantity.setTextColor(Color.BLACK);
-                    holder.tvPrice.setTextColor(Color.BLACK);
-                    holder.tvTotal.setTextColor(Color.BLACK);
+                    // Устанавливаем белый цвет текста
+                    holder.tvName.setTextColor(Color.WHITE);
+                    holder.tvQuantity.setTextColor(Color.WHITE);
+                    holder.tvPrice.setTextColor(Color.WHITE);
+                    holder.tvTotal.setTextColor(Color.WHITE);
                 } catch (IllegalArgumentException e) {
                     holder.itemView.setBackgroundColor(Color.TRANSPARENT);
-                    holder.tvName.setTextColor(Color.BLACK);
-                    holder.tvQuantity.setTextColor(Color.BLACK);
-                    holder.tvPrice.setTextColor(Color.BLACK);
-                    holder.tvTotal.setTextColor(Color.BLACK);
+                    holder.tvName.setTextColor(Color.WHITE);
+                    holder.tvQuantity.setTextColor(Color.WHITE);
+                    holder.tvPrice.setTextColor(Color.WHITE);
+                    holder.tvTotal.setTextColor(Color.WHITE);
                 }
             } else {
                 holder.itemView.setBackgroundColor(Color.TRANSPARENT);
-                holder.tvName.setTextColor(Color.BLACK);
-                holder.tvQuantity.setTextColor(Color.BLACK);
-                holder.tvPrice.setTextColor(Color.BLACK);
+                holder.tvName.setTextColor(Color.WHITE);
+                holder.tvQuantity.setTextColor(Color.WHITE);
+                holder.tvPrice.setTextColor(Color.WHITE);
+                holder.tvTotal.setTextColor(Color.WHITE);
                 holder.tvTotal.setTextColor(Color.BLACK);
             }
         }

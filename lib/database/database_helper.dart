@@ -9,10 +9,10 @@ class DatabaseHelper {
 
   // Имена таблиц
   static const String tableShoppingLists = 'shopping_lists';
-  
+
   // Имена столбцов общие
   static const String columnId = 'id';
-  
+
   // Столбцы для таблицы списков
   static const String columnName = 'name';
   static const String columnDateTime = 'date_time';
@@ -35,11 +35,7 @@ class DatabaseHelper {
     final path = await getDatabasesPath();
     final dbPath = join(path, 'myshopping.db');
 
-    return await openDatabase(
-      dbPath,
-      version: 1,
-      onCreate: _onCreate,
-    );
+    return await openDatabase(dbPath, version: 1, onCreate: _onCreate);
   }
 
   // Создание таблиц
@@ -49,8 +45,8 @@ class DatabaseHelper {
         $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
         $columnName TEXT NOT NULL,
         $columnDateTime TEXT NOT NULL,
-        $columnItems TEXT NOT NULL,
-        $columnCurrency TEXT NOT NULL
+        $columnItems TEXT,
+        $columnCurrency TEXT DEFAULT 'RUB'
       )
     ''');
   }
@@ -119,4 +115,4 @@ class DatabaseHelper {
     final db = await database;
     db.close();
   }
-} 
+}

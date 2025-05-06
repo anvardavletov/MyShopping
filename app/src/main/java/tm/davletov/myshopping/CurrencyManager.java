@@ -2,183 +2,129 @@ package tm.davletov.myshopping;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Address;
-import android.location.Geocoder;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
-import androidx.appcompat.app.AlertDialog;
-import org.json.JSONObject;
-import java.io.IOException;
+import android.os.Build;
+import android.util.Log;
+
 import java.util.Arrays;
+import java.util.Currency;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class CurrencyManager {
-    private Context context;
-    private SharedPreferences prefs;
-    private Map<String, String> currencyMap;
+    private final Context context;
+    private final CurrencyLoadListener listener;
     private String currencySymbol;
-
-    // Список нужных валют
+    private SharedPreferences prefs;
+    private static final String PREFS_NAME = "currency_prefs";
+    private static final String KEY_CURRENCY = "selected_currency";
     private static final List<String> REQUIRED_CURRENCIES = Arrays.asList(
-            "USD", "EUR", "RUB", "GBP", "TRY", "TMT", "AZN", "KZT", "UZS",
-            "CNY", "JPY", "KRW", "THB", "CHF", "INR", "KWD", "AED", "UAH",
-            "MXN", "ILS", "SAR"
+            "USD", "EUR", "RUB", "JPY", "GBP", "AUD", "CAD", "CHF",
+            "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN",
+            "INR", "ZAR", "TRY", "BRL", "TMT", "KZT", "AZN", "BYN"
     );
+    private static final Map<String, String> CURRENCY_SYMBOLS = new HashMap<>();
 
-    // Базовый набор валют на случай ошибки API
-    private static final Map<String, String> FALLBACK_CURRENCY_SYMBOLS = new HashMap<>();
     static {
-        FALLBACK_CURRENCY_SYMBOLS.put("USD", "$");
-        FALLBACK_CURRENCY_SYMBOLS.put("EUR", "€");
-        FALLBACK_CURRENCY_SYMBOLS.put("RUB", "₽");
-        FALLBACK_CURRENCY_SYMBOLS.put("GBP", "£");
+        CURRENCY_SYMBOLS.put("USD", "$");
+        CURRENCY_SYMBOLS.put("EUR", "€");
+        CURRENCY_SYMBOLS.put("RUB", "₽");
+        CURRENCY_SYMBOLS.put("JPY", "¥");
+        CURRENCY_SYMBOLS.put("GBP", "£");
+        CURRENCY_SYMBOLS.put("AUD", "$");
+        CURRENCY_SYMBOLS.put("CAD", "$");
+        CURRENCY_SYMBOLS.put("CHF", "₣");
+        CURRENCY_SYMBOLS.put("CNY", "¥");
+        CURRENCY_SYMBOLS.put("HKD", "$");
+        CURRENCY_SYMBOLS.put("NZD", "$");
+        CURRENCY_SYMBOLS.put("SEK", "kr");
+        CURRENCY_SYMBOLS.put("KRW", "₩");
+        CURRENCY_SYMBOLS.put("SGD", "$");
+        CURRENCY_SYMBOLS.put("NOK", "kr");
+        CURRENCY_SYMBOLS.put("MXN", "$");
+        CURRENCY_SYMBOLS.put("INR", "₹");
+        CURRENCY_SYMBOLS.put("ZAR", "R");
+        CURRENCY_SYMBOLS.put("TRY", "₺");
+        CURRENCY_SYMBOLS.put("BRL", "R$");
+        CURRENCY_SYMBOLS.put("TMT", "m");
+        CURRENCY_SYMBOLS.put("KZT", "₸");
+        CURRENCY_SYMBOLS.put("AZN", "₼");
+        CURRENCY_SYMBOLS.put("BYN", "Br");
     }
 
-    // Маппинг для исправления символов
-    private static final Map<String, String> SYMBOL_CORRECTIONS = new HashMap<>();
-    static {
-        SYMBOL_CORRECTIONS.put("RUB", "₽");     // Вместо "руб."
-        SYMBOL_CORRECTIONS.put("INR", "₹");     // Вместо "টকা"
-        SYMBOL_CORRECTIONS.put("TRY", "₺");     // Вместо "TL"
-        SYMBOL_CORRECTIONS.put("TMT", "m");     // Вместо "T‏"
-        SYMBOL_CORRECTIONS.put("UZS", "сўм");   // Вместо "UZS"
-        SYMBOL_CORRECTIONS.put("CHF", "Fr.");   // Вместо "CHF"
-        SYMBOL_CORRECTIONS.put("AZN", "₼");     // Вместо "ман."
-        SYMBOL_CORRECTIONS.put("KZT", "₸");     // Вместо "тңг."
-        SYMBOL_CORRECTIONS.put("CNY", "¥");     // Вместо "CN¥"
+    public interface CurrencyLoadListener {
+        void onCurrencyReady(String newSymbol);
+        void onCurrencyLoadFailed();
     }
 
-    public CurrencyManager(Context context) {
+    public CurrencyManager(Context context, CurrencyLoadListener listener) {
         this.context = context;
-        this.prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-        this.currencySymbol = prefs.getString("currency", "$");
-        this.currencyMap = new HashMap<>(FALLBACK_CURRENCY_SYMBOLS);
-        loadCurrencyFromLocation();
+        this.listener = listener;
+        this.prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        this.currencySymbol = loadCurrency();
     }
 
-    private void loadCurrencyFromLocation() {
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocationName(Locale.getDefault().getCountry(), 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                String countryCode = addresses.get(0).getCountryCode();
-                String defaultCurrencyCode = mapCountryToCurrency(countryCode);
-                currencySymbol = currencyMap.getOrDefault(defaultCurrencyCode, "$");
-                prefs.edit().putString("currency", currencySymbol).apply();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    private String loadCurrency() {
+        // Проверяем, есть ли сохраненная валюта
+        String savedCurrency = prefs.getString(KEY_CURRENCY, null);
+        if (savedCurrency != null) {
+            return savedCurrency;
         }
-        new FetchCurrenciesTask().execute();
+
+        // Получаем регион устройства
+        String countryCode = getDeviceRegion();
+        Log.d("CurrencyManager", "Device region: " + countryCode);
+
+        // Получаем валюту по региону
+        String currencyCode = getCurrencyByCountry(countryCode);
+        Log.d("CurrencyManager", "Currency code for region: " + currencyCode);
+
+        // Если валюта региона не поддерживается, устанавливаем USD
+        if (!REQUIRED_CURRENCIES.contains(currencyCode)) {
+            currencyCode = "USD";
+            Log.d("CurrencyManager", "Region currency not supported, defaulting to USD");
+        }
+
+        // Сохраняем валюту в SharedPreferences
+        prefs.edit().putString(KEY_CURRENCY, currencyCode).apply();
+
+        // Возвращаем символ валюты
+        String symbol = CURRENCY_SYMBOLS.get(currencyCode);
+        if (symbol != null) {
+            listener.onCurrencyReady(symbol);
+            return symbol;
+        } else {
+            listener.onCurrencyLoadFailed();
+            return "$"; // По умолчанию
+        }
     }
 
-    private String mapCountryToCurrency(String countryCode) {
-        switch (countryCode) {
-            case "US": return "USD";
-            case "EU": return "EUR";
-            case "RU": return "RUB";
-            case "GB": return "GBP";
-            case "TR": return "TRY";
-            case "TM": return "TMT";
-            case "AZ": return "AZN";
-            case "KZ": return "KZT";
-            case "UZ": return "UZS";
-            case "CN": return "CNY";
-            case "JP": return "JPY";
-            case "KR": return "KRW";
-            case "TH": return "THB";
-            case "CH": return "CHF";
-            case "IN": return "INR";
-            case "KW": return "KWD";
-            case "AE": return "AED";
-            case "UA": return "UAH";
-            case "MX": return "MXN";
-            case "IL": return "ILS";
-            case "SA": return "SAR";
-            default: return "USD";
+    private String getDeviceRegion() {
+        // Получаем регион через Configuration
+        Configuration config = context.getResources().getConfiguration();
+        Locale locale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = config.getLocales().get(0);
+        } else {
+            locale = config.locale;
+        }
+        return locale.getCountry();
+    }
+
+    private String getCurrencyByCountry(String countryCode) {
+        try {
+            Currency currency = Currency.getInstance(new Locale("", countryCode));
+            return currency.getCurrencyCode();
+        } catch (IllegalArgumentException e) {
+            Log.e("CurrencyManager", "Invalid country code: " + countryCode);
+            return "USD";
         }
     }
 
     public String getCurrency() {
         return currencySymbol;
-    }
-
-    public void showCurrencyDialog(Runnable onCurrencyChanged) {
-        String[] currencies = currencyMap.values().toArray(new String[0]);
-        new AlertDialog.Builder(context)
-                .setTitle("Select Currency")
-                .setItems(currencies, (dialog, which) -> {
-                    currencySymbol = currencies[which];
-                    prefs.edit().putString("currency", currencySymbol).apply();
-                    onCurrencyChanged.run();
-                })
-                .show();
-    }
-
-    private class FetchCurrenciesTask extends AsyncTask<Void, Void, String> {
-        @Override
-        protected String doInBackground(Void... voids) {
-            OkHttpClient client = new OkHttpClient();
-            String cachedSymbols = prefs.getString("symbols_cache", null);
-            if (cachedSymbols != null) {
-                parseSymbolsJson(cachedSymbols);
-            }
-
-            Request request = new Request.Builder()
-                    .url("https://api.currencyapi.com/v3/currencies?apikey=cur_live_szz2WibroRPL5NLm7xSjj3AUfi76IJLz5iuz1msU")
-                    .build();
-            try (Response response = client.newCall(request).execute()) {
-                if (response.isSuccessful() && response.body() != null) {
-                    return response.body().string();
-                } else {
-                    return "Error: " + response.code();
-                }
-            } catch (IOException e) {
-                return "Error: " + e.getMessage();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                if (result.startsWith("Error")) {
-                    String cached = prefs.getString("symbols_cache", null);
-                    if (cached != null) {
-                        parseSymbolsJson(cached);
-                    }
-                } else {
-                    prefs.edit().putString("symbols_cache", result).apply();
-                    parseSymbolsJson(result);
-                }
-            }
-        }
-
-        private void parseSymbolsJson(String jsonString) {
-            try {
-                JSONObject json = new JSONObject(jsonString);
-                JSONObject data = json.getJSONObject("data");
-                Iterator<String> keys = data.keys();
-                currencyMap.clear();
-                while (keys.hasNext()) {
-                    String code = keys.next();
-                    if (REQUIRED_CURRENCIES.contains(code)) {
-                        JSONObject currencyData = data.getJSONObject(code);
-                        String symbol = currencyData.optString("symbol_native", code);
-                        // Применяем исправления, если есть
-                        symbol = SYMBOL_CORRECTIONS.getOrDefault(code, symbol);
-                        currencyMap.put(code, symbol);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                currencyMap.putAll(FALLBACK_CURRENCY_SYMBOLS);
-            }
-        }
     }
 }

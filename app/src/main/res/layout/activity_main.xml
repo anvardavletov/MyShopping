@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="?attr/foneBackground"
     android:padding="16dp">
 
@@ -14,171 +13,173 @@
         android:layout_height="?attr/actionBarSize"
         style="@style/Widget.App.Toolbar"
         app:title="@string/app_name"
-        app:popupTheme="?attr/actionBarPopupTheme" />
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/app_name"-->
-<!--            android:textColor="@android:color/white"-->
-<!--            android:textSize="20sp"-->
-<!--            android:layout_gravity="center" />-->
-
-<!--        <ImageView-->
-<!--            android:id="@+id/menuIcon"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="end"-->
-<!--            android:src="@drawable/ic_menu_hamburger"-->
-<!--            android:contentDescription="@string/menu" />-->
+        app:popupTheme="?attr/actionBarPopupTheme"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Поля ввода -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_name"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/name_hint"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/til_quantity"
+        app:layout_constraintWidth_max="200dp"
+        app:layout_constraintWidth_percent="0.33">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/name_hint"
-            android:layout_marginEnd="8dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/editText_textColor"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:textColor="?attr/editText_textColor"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/quantity_hint"
-            android:layout_marginEnd="8dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_quantity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/editText_textColor"
-                android:inputType="numberDecimal" />
-        </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_quantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/quantity_hint"
+        app:layout_constraintTop_toTopOf="@id/til_name"
+        app:layout_constraintStart_toEndOf="@id/til_name"
+        app:layout_constraintEnd_toStartOf="@id/til_price"
+        app:layout_constraintWidth_max="150dp"
+        app:layout_constraintWidth_percent="0.33">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_quantity"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/price_hint">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_price"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/editText_textColor"
-                android:inputType="numberDecimal" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
+            android:textColor="?attr/editText_textColor"
+            android:inputType="numberDecimal" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_price"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/price_hint"
+        app:layout_constraintTop_toTopOf="@id/til_quantity"
+        app:layout_constraintStart_toEndOf="@id/til_quantity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="150dp"
+        app:layout_constraintWidth_percent="0.33">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/editText_textColor"
+            android:inputType="numberDecimal" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Кнопки выбора цвета и кнопка ADD -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_red"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/color_button_red"
+        app:backgroundTint="@null"
+        app:layout_constraintTop_toBottomOf="@id/til_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/rv_items" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_green"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/color_button_green"
+        app:backgroundTint="@null"
+        app:layout_constraintTop_toTopOf="@id/btn_red"
+        app:layout_constraintStart_toEndOf="@id/btn_red" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_blue"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/color_button_blue"
+        app:backgroundTint="@null"
+        app:layout_constraintTop_toTopOf="@id/btn_green"
+        app:layout_constraintStart_toEndOf="@id/btn_green" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_palette"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/palette"
+        app:backgroundTint="@null"
+        app:layout_constraintTop_toTopOf="@id/btn_blue"
+        app:layout_constraintStart_toEndOf="@id/btn_blue" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_add"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp"
-        android:gravity="center_vertical">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_red"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@drawable/color_button_red"
-            app:backgroundTint="@null"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_green"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@drawable/color_button_green"
-            app:backgroundTint="@null"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_blue"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@drawable/color_button_blue"
-            app:backgroundTint="@null"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_palette"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@drawable/palette"
-            app:backgroundTint="@null"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_add"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/add"
-            android:textColor="?attr/button_textColor"
-            app:backgroundTint="?attr/button_background" />
-    </LinearLayout>
+        android:layout_marginStart="8dp"
+        android:text="@string/add"
+        android:textColor="?attr/button_textColor"
+        app:backgroundTint="?attr/button_background"
+        app:layout_constraintTop_toTopOf="@id/btn_palette"
+        app:layout_constraintStart_toEndOf="@id/btn_palette"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- RecyclerView для списка покупок -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_items"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_red"
+        app:layout_constraintBottom_toTopOf="@id/all_total"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Итоговая стоимость -->
     <TextView
         android:id="@+id/all_total"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/total"
         android:textSize="18sp"
         android:gravity="center"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintBottom_toTopOf="@id/btn_save"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Кнопки SAVE и CLEAR -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_save"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_marginEnd="8dp"
+        android:text="@string/save"
+        android:textColor="?attr/button_textColor"
+        app:backgroundTint="?attr/button_background"
+        app:layout_constraintBottom_toTopOf="@id/ad_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_clear" />
 
-        <Button
-            android:id="@+id/btn_save"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/save"
-            android:backgroundTint="?attr/button_background"
-            android:textColor="?attr/button_textColor"
-            android:layout_marginEnd="8dp" />
-
-        <Button
-            android:id="@+id/btn_clear"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/clear"
-            android:backgroundTint="?attr/button_background"
-            android:textColor="?attr/button_textColor"  />
-    </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_clear"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/clear"
+        android:textColor="?attr/button_textColor"
+        app:backgroundTint="?attr/button_background"
+        app:layout_constraintBottom_toTopOf="@id/ad_view"
+        app:layout_constraintStart_toEndOf="@id/btn_save"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- AdView для рекламы -->
     <com.google.android.gms.ads.AdView
@@ -187,7 +188,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        app:adSize="BANNER"
-        app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+        android:visibility="gone"
+        app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
